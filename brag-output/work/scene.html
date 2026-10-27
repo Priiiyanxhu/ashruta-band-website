@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ashruta — brag</title>
+<link rel="stylesheet" href="./fonts.css" />
+<style>
+  :root{
+    --red600:#dc2626; --red500:#ef4444; --red400:#f87171; --red950:#2a0707;
+    --amber:#f3c073; --gray900:#111827; --gray800:#1f2937; --gray400:#9ca3af; --gray300:#d1d5db;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;background:#000;overflow:hidden}
+  body{font-family:'Montserrat',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+  #stage{position:relative;width:1920px;height:1080px;background:#000;overflow:hidden}
+  .osw{font-family:'Oswald',sans-serif}
+  .mont{font-family:'Montserrat',sans-serif}
+  .layer{position:absolute;inset:0}
+  .scene{position:absolute;inset:0;opacity:0;will-change:opacity,transform}
+  .ctr{position:absolute;left:0;right:0;text-align:center}
+
+  /* atmosphere */
+  #haze1,#haze2{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
+  #haze1{width:1100px;height:900px;background:rgba(220,38,38,.17)}
+  #haze2{width:900px;height:800px;background:rgba(124,58,237,.09)}
+  #vign{position:absolute;inset:0;background:radial-gradient(120% 95% at 50% 50%,transparent 38%,rgba(0,0,0,.62) 100%);pointer-events:none}
+  #grain{position:absolute;inset:0;opacity:.05;pointer-events:none;mix-blend-mode:overlay}
+  #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+  #wipe{position:absolute;inset:0;background:var(--red600);opacity:0;pointer-events:none}
+  #fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+  #bars{position:absolute;inset:0;pointer-events:none}
+
+  /* S1 collision */
+  .slam{position:absolute;left:0;right:0;text-align:center;font-weight:700;letter-spacing:.05em;
+        white-space:nowrap;will-change:transform,opacity,filter}
+  #s1a{color:var(--amber);font-size:168px;top:276px}
+  #s1b{color:var(--red500);font-size:168px;top:560px}
+  #s1rule{position:absolute;height:5px;background:var(--red600);top:520px;left:50%;transform:translateX(-50%);width:0;
+          box-shadow:0 0 40px rgba(239,68,68,.9)}
+
+  /* S2 wordmark */
+  #s2mark{font-size:252px;font-weight:700;letter-spacing:.2em;color:#fff;top:330px;
+          text-shadow:0 0 30px rgba(239,68,68,.8),0 0 90px rgba(220,38,38,.45);white-space:nowrap}
+  #s2rule{position:absolute;height:3px;background:linear-gradient(90deg,transparent,var(--red600),transparent);
+          top:648px;left:50%;transform:translateX(-50%);width:0}
+  #s2tag{top:712px;font-size:34px;font-weight:600;letter-spacing:.34em;color:var(--red400);white-space:nowrap}
+
+  /* section labels */
+  .seclabel{font-weight:700;letter-spacing:.2em;color:var(--red500);font-size:72px;white-space:nowrap}
+  .seckick{font-weight:600;letter-spacing:.42em;font-size:21px;color:var(--gray400);white-space:nowrap}
+
+  /* S3 cards */
+  #cards{position:absolute;left:0;right:0;top:408px;display:flex;gap:26px;justify-content:center}
+  .card{position:relative;width:326px;height:420px;border-radius:12px;overflow:hidden;
+        background:linear-gradient(162deg,var(--gray800) 0%,#0b0d12 100%);
+        will-change:transform,opacity;flex:0 0 auto}
+  .cardtex{position:absolute;inset:0}
+  .cardshade{position:absolute;inset:0;
+        background:linear-gradient(to top,#000 0%,rgba(0,0,0,.52) 46%,rgba(0,0,0,.04) 100%)}
+  .cardborder{position:absolute;inset:0;border-radius:12px;border:2px solid rgba(220,38,38,0);pointer-events:none}
+  .cardmark{position:absolute;left:0;right:0;top:96px;display:flex;justify-content:center;opacity:.9}
+  .cardtxt{position:absolute;left:0;right:0;bottom:0;padding:26px 24px}
+  .cname{font-weight:700;font-size:34px;letter-spacing:.01em;color:#fff;line-height:1.05}
+  .crole{font-weight:600;font-size:18px;letter-spacing:.18em;color:var(--red500);margin-top:9px;text-transform:uppercase}
+  #s3note{top:862px;font-size:34px;font-weight:500;letter-spacing:.14em;color:var(--gray300);white-space:nowrap}
+
+  /* S4 tracks */
+  #tracks{position:absolute;left:556px;top:424px;border-left:4px solid rgba(220,38,38,.55);padding-left:38px}
+  .trk{display:flex;align-items:baseline;gap:28px;height:92px;will-change:transform,opacity}
+  .tnum{font-family:'Montserrat',sans-serif;font-weight:700;font-size:21px;color:var(--red600);letter-spacing:.1em;width:50px}
+  .ttitle{font-family:'Oswald',sans-serif;font-weight:500;font-size:60px;letter-spacing:.03em;color:#fff;white-space:nowrap}
+  #s4foot{top:852px;font-size:30px;font-weight:600;letter-spacing:.34em;color:var(--red400);white-space:nowrap}
+
+  /* S5 tour */
+  #tour{position:absolute;left:300px;right:300px;top:404px}
+  .row{display:flex;align-items:center;gap:0;height:124px;border-bottom:1px solid rgba(255,255,255,.1);
+       will-change:transform,opacity}
+  .rdate{font-family:'Montserrat',sans-serif;font-weight:600;font-size:25px;letter-spacing:.22em;color:var(--red400);width:296px}
+  .rcity{font-family:'Oswald',sans-serif;font-weight:600;font-size:54px;letter-spacing:.08em;color:#fff;width:380px}
+  .rvenue{font-family:'Montserrat',sans-serif;font-weight:500;font-size:27px;color:var(--gray400);flex:1}
+  .rpill{font-family:'Montserrat',sans-serif;font-weight:700;font-size:17px;letter-spacing:.17em;padding:13px 24px;border-radius:5px;white-space:nowrap}
+  .pill-on{background:var(--red600);color:#fff}
+  .pill-soon{border:2px solid rgba(220,38,38,.6);color:var(--red400)}
+
+  /* S6 outro */
+  #s6mark{font-size:184px;font-weight:700;letter-spacing:.22em;color:#fff;top:352px;
+          text-shadow:0 0 30px rgba(239,68,68,.8),0 0 90px rgba(220,38,38,.4);white-space:nowrap}
+  #s6rule{position:absolute;height:3px;background:linear-gradient(90deg,transparent,var(--red600),transparent);
+          top:600px;left:50%;transform:translateX(-50%);width:0}
+  #s6cta{position:absolute;left:0;right:0;top:650px;display:flex;gap:22px;justify-content:center}
+  .btn{font-family:'Montserrat',sans-serif;font-weight:700;font-size:23px;letter-spacing:.14em;
+       padding:18px 44px;border-radius:5px}
+  .btn-solid{background:var(--red600);color:#fff;box-shadow:0 12px 40px rgba(220,38,38,.42)}
+  .btn-out{border:2px solid var(--red600);color:#fff}
+  #s6handle{top:792px;font-size:27px;font-weight:500;letter-spacing:.2em;color:var(--gray400);white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="layer"><div id="haze1"></div><div id="haze2"></div></div>
+  <canvas id="grain" width="1920" height="1080"></canvas>
+
+  <!-- S1 -->
+  <div class="scene" id="s1">
+    <div class="slam osw" id="s1a">BOLLYWOOD</div>
+    <div id="s1rule"></div>
+    <div class="slam osw" id="s1b">ROCK METAL</div>
+  </div>
+
+  <!-- S2 -->
+  <div class="scene" id="s2">
+    <div class="ctr osw" id="s2mark">ASHRUTA</div>
+    <div id="s2rule"></div>
+    <div class="ctr mont" id="s2tag">BOLLYWOOD FUSION IN ROCK METAL</div>
+  </div>
+
+  <!-- S3 -->
+  <div class="scene" id="s3">
+    <div class="ctr mont seckick" id="s3kick" style="top:236px">FIVE MUSICIANS · ONE SOUND</div>
+    <div class="ctr osw seclabel" id="s3lab" style="top:272px">THE CULT</div>
+    <div id="cards"></div>
+    <div class="ctr mont" id="s3note">a bansuri in a metal band</div>
+  </div>
+
+  <!-- S4 -->
+  <div class="scene" id="s4">
+    <div class="ctr mont seckick" id="s4kick" style="top:236px">ORIGINAL MUSIC</div>
+    <div class="ctr osw seclabel" id="s4lab" style="top:272px">THE SET</div>
+    <div id="tracks"></div>
+    <div class="ctr mont" id="s4foot">DEBUT ALBUM COMING SOON</div>
+  </div>
+
+  <!-- S5 -->
+  <div class="scene" id="s5">
+    <div class="ctr mont seckick" id="s5kick" style="top:236px">LIVE 2026</div>
+    <div class="ctr osw seclabel" id="s5lab" style="top:272px">ON TOUR</div>
+    <div id="tour"></div>
+  </div>
+
+  <!-- S6 -->
+  <div class="scene" id="s6">
+    <div class="ctr osw" id="s6mark">ASHRUTA</div>
+    <div id="s6rule"></div>
+    <div id="s6cta">
+      <div class="btn btn-solid">LISTEN NOW</div>
+      <div class="btn btn-out">TOUR DATES</div>
+    </div>
+    <div class="ctr mont" id="s6handle">@ashruta_theband</div>
+  </div>
+
+  <div id="vign"></div>
+  <div id="wipe"></div>
+  <div id="flash"></div>
+  <div id="fade"></div>
+</div>
+
+<script>
+/* ---------- data: taken verbatim from client/src/pages/Home.tsx ---------- */
+const MEMBERS = [
+  {name:"Goutam Das", role:"Founder & Vocalist", mark:"voice", hue:0},
+  {name:"Chinmay",    role:"Electric Guitarist", mark:"guitar", hue:-6},
+  {name:"Parth",      role:"Keys",               mark:"keys",   hue:4},
+  {name:"Rachita",    role:"Flute",              mark:"flute",  hue:0},
+  {name:"Ayan Yash",  role:"Managing Director",  mark:"brackets",hue:-10},
+];
+const TRACKS = ["AGNI RAAG (FIRE MELODY)","TANDAV METAL","RAGA OF THE FALLEN","BOLLYWOOD INFERNO"];
+const TOUR = [
+  {date:"MAY 10, 2026", city:"MUMBAI",    venue:"The Metal Dome",   status:"on"},
+  {date:"MAY 25, 2026", city:"DELHI",     venue:"Rock Arena",       status:"soon"},
+  {date:"JUNE 8, 2026", city:"BANGALORE", venue:"Festival Grounds", status:"soon"},
+];
+
+/* ---------- math ---------- */
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+// normalized progress of t across [a,b]
+const p=(t,a,b)=>clamp((t-a)/(b-a),0,1);
+const eoCubic=x=>1-Math.pow(1-x,3);
+const eoExpo =x=>x>=1?1:1-Math.pow(2,-9*x);
+const eoBack =x=>{const c=1.70158+1;return 1+ (c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2);};
+const smooth =x=>x*x*(3-2*x);
+// 0 at edges, 1 in the middle of [a,b] with fade f
+const win=(t,a,b,f)=>Math.min(p(t,a,a+f),1-p(t,b-f,b));
+const px=v=>v.toFixed(2)+"px";
+
+/* ---------- deterministic grain ---------- */
+(function(){
+  const c=document.getElementById('grain'), x=c.getContext('2d');
+  let s=1337; const rnd=()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};
+  const img=x.createImageData(1920,1080), d=img.data;
+  for(let i=0;i<d.length;i+=4){const v=200+rnd()*55|0;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255;}
+  x.putImageData(img,0,0);
+})();
+
+/* ---------- instrument marks (abstract, drawn — not photos) ---------- */
+function mark(kind){
+  const C='rgba(239,68,68,.85)', D='rgba(248,113,113,.5)';
+  const s=v=>`stroke="${v}" fill="none" stroke-linecap="round"`;
+  if(kind==='voice') return `<svg width="126" height="126" viewBox="0 0 104 104">
+    <circle cx="52" cy="52" r="7" fill="${C}"/>
+    <path d="M52 30a22 22 0 0 1 0 44" ${s(C)} stroke-width="3"/>
+    <path d="M52 18a34 34 0 0 1 0 68" ${s(D)} stroke-width="2.5"/>
+    <path d="M52 30a22 22 0 0 0 0 44" ${s(C)} stroke-width="3"/>
+    <path d="M52 18a34 34 0 0 0 0 68" ${s(D)} stroke-width="2.5"/></svg>`;
+  if(kind==='guitar'){let g='';for(let i=0;i<6;i++)g+=`<line x1="${22+i*12}" y1="14" x2="${22+i*12}" y2="90" ${s(i%2?D:C)} stroke-width="2"/>`;
+    for(let j=0;j<3;j++)g+=`<line x1="16" y1="${30+j*22}" x2="88" y2="${30+j*22}" ${s('rgba(239,68,68,.35)')} stroke-width="2"/>`;
+    return `<svg width="104" height="104" viewBox="0 0 104 104">${g}</svg>`;}
+  if(kind==='keys'){let g='';for(let i=0;i<7;i++)g+=`<rect x="${14+i*11}" y="34" width="9" height="42" rx="1.5" fill="rgba(239,68,68,.22)" stroke="${C}" stroke-width="1.5"/>`;
+    for(let i=0;i<4;i++){const o=[0,1,3,4][i];g+=`<rect x="${20+o*11}" y="34" width="7" height="25" rx="1.5" fill="${C}"/>`;}
+    return `<svg width="104" height="104" viewBox="0 0 104 104">${g}</svg>`;}
+  if(kind==='flute'){let g=`<rect x="8" y="46" width="88" height="13" rx="6.5" fill="rgba(239,68,68,.2)" stroke="${C}" stroke-width="2"/>`;
+    for(let i=0;i<6;i++)g+=`<circle cx="${26+i*11}" cy="52.5" r="3.2" fill="${C}"/>`;
+    g+=`<path d="M12 40c6-9 14-9 20 0" ${s(D)} stroke-width="2"/>`;
+    return `<svg width="104" height="104" viewBox="0 0 104 104">${g}</svg>`;}
+  return `<svg width="104" height="104" viewBox="0 0 104 104">
+    <path d="M18 26h-8v-8M86 26h8v-8M18 78h-8v8M86 78h8v8" ${s(C)} stroke-width="3"/>
+    <rect x="34" y="42" width="36" height="20" rx="3" fill="none" stroke="${D}" stroke-width="2"/></svg>`;
+}
+
+/* ---------- build DOM ---------- */
+const cardsEl=document.getElementById('cards');
+MEMBERS.forEach((m,i)=>{
+  const d=document.createElement('div'); d.className='card';
+  d.innerHTML=`
+    <div class="cardtex" style="background:
+        radial-gradient(115% 80% at 50% 12%, rgba(239,68,68,${0.3+(i%2)*0.06}), transparent 62%),
+        radial-gradient(80% 60% at ${18+i*16}% 86%, rgba(124,58,237,.12), transparent 70%),
+        radial-gradient(62% 46% at 50% 66%, rgba(0,0,0,.55), transparent 72%)"></div>
+    <div class="cardshade"></div>
+    <div class="cardmark">${mark(m.mark)}</div>
+    <div class="cardtxt">
+      <div class="cname osw">${m.name}</div>
+      <div class="crole osw">${m.role}</div>
+    </div>
+    <div class="cardborder"></div>`;
+  cardsEl.appendChild(d);
+});
+const cardEls=[...document.querySelectorAll('.card')];
+
+const tracksEl=document.getElementById('tracks');
+TRACKS.forEach((t,i)=>{
+  const d=document.createElement('div'); d.className='trk';
+  d.innerHTML=`<div class="tnum">0${i+1}</div><div class="ttitle">${t}</div>`;
+  tracksEl.appendChild(d);
+});
+const trkEls=[...document.querySelectorAll('.trk')];
+
+const tourEl=document.getElementById('tour');
+TOUR.forEach(r=>{
+  const d=document.createElement('div'); d.className='row';
+  d.innerHTML=`<div class="rdate">${r.date}</div><div class="rcity">${r.city}</div>
+    <div class="rvenue">${r.venue}</div>
+    <div class="rpill ${r.status==='on'?'pill-on':'pill-soon'}">${r.status==='on'?'TICKETS AVAILABLE':'COMING SOON'}</div>`;
+  tourEl.appendChild(d);
+});
+const rowEls=[...document.querySelectorAll('.row')];
+
+const E=id=>document.getElementById(id);
+const SC={s1:E('s1'),s2:E('s2'),s3:E('s3'),s4:E('s4'),s5:E('s5'),s6:E('s6')};
+
+/* ---------- timeline (120 BPM: beat = 0.5s, bar = 2s) ---------- */
+const B=0.5;
+const SCENES={ s1:[0.0,3.0], s2:[3.0,6.0], s3:[6.0,10.5], s4:[10.5,14.0], s5:[14.0,17.0], s6:[17.0,20.0] };
+const DUR=20.0;
+
+function setT(t){
+  /* --- atmosphere drifts slowly, always --- */
+  E('haze1').style.left=px(lerp(-180,420,smooth(p(t,0,DUR))));
+  E('haze1').style.top =px(lerp(420,-60,smooth(p(t,0,DUR))));
+  E('haze2').style.left=px(lerp(1180,620,smooth(p(t,0,DUR))));
+  E('haze2').style.top =px(lerp(-120,520,smooth(p(t,0,DUR))));
+  const pulse=1+0.012*Math.sin(2*Math.PI*t/(4*B));
+  E('haze1').style.transform=`scale(${pulse.toFixed(4)})`;
+
+  /* --- scene visibility: dip through black at every cut --- */
+  for(const k in SCENES){
+    const [a,b]=SCENES[k];
+    SC[k].style.opacity = (t>=a-0.001 && t<b) ? win(t,a,b,0.12).toFixed(4) : 0;
+    SC[k].style.display = (t>=a-0.3 && t<b+0.1) ? 'block' : 'none';
+  }
+
+  /* ================= S1 — the collision ================= */
+  {
+    const a=E('s1a'), b=E('s1b'), r=E('s1rule');
+    const pa=eoExpo(p(t,0.10,1.00));              // BOLLYWOOD in from left
+    const pb=eoExpo(p(t,1.00,1.90));              // ROCK METAL in from right
+    const imp=p(t,2.00,2.14);                     // beat 5: slam together
+    const ea=eoCubic(imp), out=p(t,2.86,3.00);
+    a.style.transform=`translateX(${px(lerp(-1180,0,pa))}) translateY(${px(lerp(0,26,ea))}) scale(${lerp(1,1.03,ea).toFixed(4)})`;
+    a.style.opacity=(pa*(1-out)).toFixed(3);
+    a.style.filter=`blur(${((1-pa)*26).toFixed(1)}px)`;
+    b.style.transform=`translateX(${px(lerp(1180,0,pb))}) translateY(${px(lerp(0,-26,ea))}) scale(${lerp(1,1.03,ea).toFixed(4)})`;
+    b.style.opacity=(pb*(1-out)).toFixed(3);
+    b.style.filter=`blur(${((1-pb)*26).toFixed(1)}px)`;
+    r.style.width=px(lerp(0,1180,eoExpo(p(t,2.00,2.40))));
+    r.style.opacity=((t<2.0?0:1)*(1-out)).toFixed(3);
+  }
+
+  /* ================= S2 — wordmark ================= */
+  {
+    const m=E('s2mark'), r=E('s2rule'), g=E('s2tag');
+    const pm=eoExpo(p(t,3.05,3.70)), drift=smooth(p(t,3.0,6.0));
+    m.style.letterSpacing=lerp(0.42,0.20,pm).toFixed(4)+'em';
+    m.style.opacity=pm.toFixed(3);
+    m.style.transform=`scale(${lerp(1.07,1.0,pm)*(1+0.018*drift)})`;
+    m.style.filter=`blur(${((1-pm)*16).toFixed(1)}px)`;
+    r.style.width=px(lerp(0,560,eoCubic(p(t,3.60,4.05))));
+    g.style.opacity=eoCubic(p(t,4.00,4.45)).toFixed(3);
+    g.style.transform=`translateY(${px(lerp(16,0,eoCubic(p(t,4.00,4.45))))})`;
+    g.style.letterSpacing=lerp(0.24,0.34,eoCubic(p(t,4.0,4.6))).toFixed(4)+'em';
+  }
+
+  /* ================= S3 — THE CULT ================= */
+  {
+    const k=eoCubic(p(t,6.05,6.45)), l=eoCubic(p(t,6.10,6.60));
+    E('s3kick').style.opacity=k.toFixed(3);
+    E('s3lab').style.opacity=l.toFixed(3);
+    E('s3lab').style.transform=`translateY(${px(lerp(18,0,l))})`;
+    E('s3lab').style.letterSpacing=lerp(0.34,0.20,l).toFixed(4)+'em';
+    cardEls.forEach((el,i)=>{
+      const t0=6.50+i*B;                            // one card per beat
+      const pi=eoBack(p(t,t0,t0+0.42));
+      const liftP=(i===3)?eoCubic(p(t,9.00,9.40)):0; // Rachita lifts on beat 19
+      const y=lerp(58,0,clamp(pi,0,1))-liftP*26;
+      const sc=(0.955+0.045*clamp(pi,0,1))*(1+0.045*liftP);
+      el.style.opacity=clamp(p(t,t0,t0+0.26),0,1).toFixed(3);
+      el.style.transform=`translateY(${px(y)}) scale(${sc.toFixed(4)})`;
+      el.style.boxShadow=liftP>0?`0 26px 70px rgba(220,38,38,${(0.5*liftP).toFixed(3)})`:'0 18px 44px rgba(0,0,0,.55)';
+      el.querySelector('.cardborder').style.borderColor=
+        `rgba(220,38,38,${(0.42*clamp(pi,0,1)+0.5*liftP).toFixed(3)})`;
+      const role=el.querySelector('.crole');
+      if(i===3){ role.style.fontSize=px(lerp(18,29,liftP));
+                 role.style.color=liftP>0.5?'#f87171':'#ef4444';
+                 role.style.letterSpacing=lerp(0.18,0.3,liftP).toFixed(3)+'em'; }
+    });
+    const n=eoCubic(p(t,9.15,9.55));
+    E('s3note').style.opacity=n.toFixed(3);
+    E('s3note').style.transform=`translateY(${px(lerp(14,0,n))})`;
+  }
+
+  /* ================= S4 — THE SET ================= */
+  {
+    const k=eoCubic(p(t,10.55,10.95)), l=eoCubic(p(t,10.60,11.10));
+    E('s4kick').style.opacity=k.toFixed(3);
+    E('s4lab').style.opacity=l.toFixed(3);
+    E('s4lab').style.transform=`translateY(${px(lerp(18,0,l))})`;
+    E('s4lab').style.letterSpacing=lerp(0.34,0.20,l).toFixed(4)+'em';
+    trkEls.forEach((el,i)=>{
+      const t0=11.00+i*B;
+      const pi=eoExpo(p(t,t0,t0+0.40));
+      el.style.opacity=clamp(p(t,t0,t0+0.24),0,1).toFixed(3);
+      el.style.transform=`translateX(${px(lerp(-72,0,pi))})`;
+    });
+    const f=eoCubic(p(t,12.58,12.98));
+    E('s4foot').style.opacity=f.toFixed(3);
+    E('s4foot').style.letterSpacing=lerp(0.26,0.36,f).toFixed(4)+'em';
+  }
+
+  /* ================= S5 — ON TOUR ================= */
+  {
+    const k=eoCubic(p(t,14.05,14.45)), l=eoCubic(p(t,14.10,14.55));
+    E('s5kick').style.opacity=k.toFixed(3);
+    E('s5lab').style.opacity=l.toFixed(3);
+    E('s5lab').style.transform=`translateY(${px(lerp(18,0,l))})`;
+    E('s5lab').style.letterSpacing=lerp(0.34,0.20,l).toFixed(4)+'em';
+    rowEls.forEach((el,i)=>{
+      const t0=14.50+i*B;
+      const pi=eoExpo(p(t,t0,t0+0.38));
+      el.style.opacity=clamp(p(t,t0,t0+0.22),0,1).toFixed(3);
+      el.style.transform=`translateY(${px(lerp(40,0,pi))})`;
+      el.querySelector('.rcity').style.letterSpacing=lerp(0.2,0.08,pi).toFixed(4)+'em';
+    });
+  }
+
+  /* ================= S6 — outro ================= */
+  {
+    const m=eoExpo(p(t,17.05,17.65));
+    E('s6mark').style.opacity=m.toFixed(3);
+    E('s6mark').style.letterSpacing=lerp(0.40,0.22,m).toFixed(4)+'em';
+    E('s6mark').style.transform=`scale(${lerp(1.05,1.0,m).toFixed(4)})`;
+    E('s6rule').style.width=px(lerp(0,520,eoCubic(p(t,17.55,18.00))));
+    const c=eoBack(p(t,17.75,18.20));
+    E('s6cta').style.opacity=clamp(p(t,17.75,18.05),0,1).toFixed(3);
+    E('s6cta').style.transform=`translateY(${px(lerp(26,0,clamp(c,0,1)))})`;
+    const h=eoCubic(p(t,18.25,18.65));
+    E('s6handle').style.opacity=h.toFixed(3);
+    E('s6handle').style.letterSpacing=lerp(0.12,0.2,h).toFixed(4)+'em';
+  }
+
+  /* ================= impacts & transitions ================= */
+  // white flash on the collision beat only
+  E('flash').style.opacity=(0.30*Math.pow(1-p(t,2.00,2.18),2.4)*(t>=2.0&&t<2.18?1:0)).toFixed(4);
+  // crimson diagonal wipe across the 10.5 and 14.0 cuts
+  let w=0, clip='none';
+  for(const cut of [10.5,14.0]){
+    const q=p(t,cut-0.20,cut+0.20);
+    if(q>0&&q<1){
+      w=0.55*Math.sin(Math.PI*q);
+      const x=lerp(-14,116,eoCubic(q));
+      clip=`polygon(${x-5}% 0, ${x-1.4}% 0, ${x+5}% 100%, ${x+1.4}% 100%)`;
+    }
+  }
+  E('wipe').style.opacity=w.toFixed(4); E('wipe').style.clipPath=clip;
+  // top & tail
+  E('fade').style.opacity=Math.max(1-p(t,0.0,0.28), p(t,19.62,20.0)).toFixed(4);
+}
+window.__setT=setT;
+window.__ready=false;
+(async()=>{ await document.fonts.ready; await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  setT(0); window.__ready=true; })();
+</script>
+</body>
+</html>
